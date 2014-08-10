@@ -12,7 +12,7 @@ Note: Welcome to Procedural to Object-Oriented Modules
 * Using drupal since version 4
 
 Note: My name is Cameron Zemek, and I am a senior drupal developer at PreviousNext.
-Note: I have been working in PHP for almost 10 years now, and previous to that spent number of years in Java.
+I have been working in PHP for almost 10 years now, and previous to that spent number of years in Java.
 
 ---
 
@@ -26,8 +26,8 @@ Note: I have been working in PHP for almost 10 years now, and previous to that s
 * Unit testing and mocking to drive higher quality code and faster development
 
 Note: Today I am going to be talking about refactoring procedural code into object oriented code to improve quality and development and transition to drupal 8.
-Note: In doing so will cover some core drupal 8 design patterns and how we can leverage them in our own modules.
-Note: Also touch on some important changes to drupal 8 that will affect porting of modules and tools to help assist in this process.
+In doing so will cover some core drupal 8 design patterns and how we can leverage them in our own modules.
+Also touch on some important changes to drupal 8 that will affect porting of modules and tools to help assist in this process.
 
 ---
 
@@ -39,8 +39,8 @@ Note: Also touch on some important changes to drupal 8 that will affect porting 
 * Lots of API clean up for greater consistency
 
 Note: As I just eluded to and as you may be aware, Drupal 8 is making major architectural changes.
-Note: Shifting from procedural to object-oriented programming and taking advantage of the features in PHP 5.4 and excellent external libraries.
-Note: There is less drupalisms, or as I like to put it. We moving off the drupal island and heading to the PHP mainland. We are becoming a part of the larger PHP community and taking advantage of the excellent work that is done there instead of reinventing the wheel.
+Shifting from procedural to object-oriented programming and taking advantage of the features in PHP 5.4 and excellent external libraries.
+There is less drupalisms, or as I like to put it. We moving off the drupal island and heading to the PHP mainland. We are becoming a part of the larger PHP community and taking advantage of the excellent work that is done there instead of reinventing the wheel.
 
 ---
 
@@ -53,9 +53,9 @@ Note: There is less drupalisms, or as I like to put it. We moving off the drupal
 > If you learnt php from Drupal - Drupal 8 will teach you modern php from a familiar setting. (Lee Rowlands, 2014)
 
 Note: For those that are not as familiar with object-oriented programming and grew up in drupal this change may seem daunting.
-Note: But as fellow drupaler Lee said, learning drupal 8 will teach you modern object-oriented PHP from a familiar setting.
-Note: In this session we are going to look at some examples of how we can refactor from procedural modules into object-oriented modules and make the transition to Drupal 8.
-Note: In doing so we will briefly cover common design patterns in Drupal 8 and how we can take advantage of them in our modules.
+But as fellow drupaler Lee said, learning drupal 8 will teach you modern object-oriented PHP from a familiar setting.
+In this session we are going to look at some examples of how we can refactor from procedural modules into object-oriented modules and make the transition to Drupal 8.
+In doing so we will briefly cover common design patterns in Drupal 8 and how we can take advantage of them in our modules.
 
 ---
 
@@ -69,13 +69,13 @@ Note: In doing so we will briefly cover common design patterns in Drupal 8 and h
 * Better testing
 
 Note: Before we go into refactoring modules, you may be wondering what the big deal is, and why drupal is making these changes.
-Note: In my opinion it is making Drupal better designed. Instead of these arrays where you have to memorize what the keys are or go looking up the documentation we have interfaces.
-Note: An interface defines a contract for how we interact with a component and its more visible and has IDE support.
-Note: <ACTION> Show demo in PHPStorm of arrays vs object
-Note: Additionally interfaces gives us pluggable components. We are abstracted from a concrete implementation and can provide alternative implementations. For example, menu storage could be changed from using a tree to using nested set theory.
-Note: This also helps with testing as we can use a test double or what is referred to as a mock inplace of the component so can better test an individual part.
-Note: With this change to object-oriented programming we are seeing better separation of concerns. Drupal 8 is better supporting web services etc. No longer assuming the output is a HTML page.
-Note: Also taking advantage of established design patterns. Learning one part of drupal applies to many areas of drupal and even to other PHP projects. So its quicker for non drupal developers to get started on drupal and likewise for drupal developers to get started on other projects. That is more familiarity between PHP projects.
+In my opinion it is making Drupal better designed. Instead of these arrays where you have to memorize what the keys are or go looking up the documentation we have interfaces.
+An interface defines a contract for how we interact with a component and its more visible and has IDE support.
+<ACTION> Show demo in PHPStorm of arrays vs object
+Additionally interfaces gives us pluggable components. We are abstracted from a concrete implementation and can provide alternative implementations. For example, menu storage could be changed from using a tree to using nested set theory.
+This also helps with testing as we can use a test double or what is referred to as a mock inplace of the component so can better test an individual part.
+With this change to object-oriented programming we are seeing better separation of concerns. Drupal 8 is better supporting web services etc. No longer assuming the output is a HTML page.
+Also taking advantage of established design patterns. Learning one part of drupal applies to many areas of drupal and even to other PHP projects. So its quicker for non drupal developers to get started on drupal and likewise for drupal developers to get started on other projects. That is more familiarity between PHP projects.
 
 ---
 
@@ -111,13 +111,13 @@ function example_block_view($delta = '') {
 ```
 
 Note: Okay so lets look at an example of a drupal 7 module that is defining some blocks.
-Note: First thing to note is the Drupalism of hooks. We have to be careful in the naming of our functions so they match the required hook and the arguments align with how drupal will call our hook.
-Note: If we make a mistake in the function name of the hook we don't get any warnings or errors. There no immediate indication of mistake with the definition of the hook.
-Note: Second thing to note is we have these switch statements where the delta has to match what was returned in block_info.
-Note: If we to add other block hooks such as configuration forms we would be writing similiar switch statements.
-Note: So if we want to see everything relating to a single block we have to check for any hooks relating to blocks, then skim over the code looking for case or if statement that matches the delta of the block we are interested in.
-Note: This issue increases as the module gains more and more blocks, and even if we factor out each block into an include file we still have to deal with these switch statements.
-Note: Now lets take compare to the object oriented approach.
+First thing to note is the Drupalism of hooks. We have to be careful in the naming of our functions so they match the required hook and the arguments align with how drupal will call our hook.
+If we make a mistake in the function name of the hook we don't get any warnings or errors. There no immediate indication of mistake with the definition of the hook.
+Second thing to note is we have these switch statements where the delta has to match what was returned in block_info.
+If we to add other block hooks such as configuration forms we would be writing similiar switch statements.
+So if we want to see everything relating to a single block we have to check for any hooks relating to blocks, then skim over the code looking for case or if statement that matches the delta of the block we are interested in.
+This issue increases as the module gains more and more blocks, and even if we factor out each block into an include file we still have to deal with these switch statements.
+Now lets take compare to the object oriented approach.
 
 ---
 
@@ -149,10 +149,10 @@ class TestBlock extends BlockBase {
 ```
 
 Note: So first thing to note is instead of hooks we have interfaces. The advantage of this is it more clearly defines what methods exist for blocks.
-Note: <Demo in phpstorm>
-Note: And with an IDE we are told when we implementing a method from the interface and it also check the arguments.
-Note: And we can easily find all blocks that have been defined. <Find Usages in phpstorm>
-Note: Secondly everything relating to an individual block is define in the one class which belongs in its own file. So now its much easier to work with an individual block.
+<Demo in phpstorm>
+And with an IDE we are told when we implementing a method from the interface and it also check the arguments.
+And we can easily find all blocks that have been defined. <Find Usages in phpstorm>
+Secondly everything relating to an individual block is define in the one class which belongs in its own file. So now its much easier to work with an individual block.
 
 ---
 
@@ -162,7 +162,7 @@ Note: Secondly everything relating to an individual block is define in the one c
 * https://www.drupal.org/project/ghost
 
 Note: The object-oriented example I just gave was of drupal 8. So the question is can we use object-oriented modules in drupal 7 that will be sympathetic to Drupal 8. That is porting the module to drupal 8 will be more straightforward and be of an object-oriented design.
-Note: The short answer is yes. Chris Skene from PreviousNext has recently published a module called Ghost that lets you use object-oriented pages, forms and blocks in Drupal 7.
+The short answer is yes. Chris Skene from PreviousNext has recently published a module called Ghost that lets you use object-oriented pages, forms and blocks in Drupal 7.
 
 ---
 
@@ -198,12 +198,12 @@ Note: This is similiar to the block code in Drupal 8. And so less changes will b
 * It is a description or template for how to solve a problem that can be used in many different situations.
 
 Note: Now we have looked at basic example of changing a module from procedural to object-oriented lets look at some useful techniques that we can apply with object-oriented modules.
-Note: So what are design patterns?
-Note: A design pattern is a general reusable solution to a commonly occurring problem within a given context in software design.
-Note: The solution isn't a concrete implementation but a description or template on how to solve a problem that can be used in different situations.
-Note: These design patterns also apply outside of Drupal and are common in many object-oriented langauges.
-Note: So with Drupal 8 this means less drupalisms. The idea being once you learn something in Drupal 8 you can apply it in multiple situations.
-Note: So lets look at some of these design patterns and how they can be applied to our modules.
+So what are design patterns?
+A design pattern is a general reusable solution to a commonly occurring problem within a given context in software design.
+The solution isn't a concrete implementation but a description or template on how to solve a problem that can be used in different situations.
+These design patterns also apply outside of Drupal and are common in many object-oriented langauges.
+So with Drupal 8 this means less drupalisms. The idea being once you learn something in Drupal 8 you can apply it in multiple situations.
+So lets look at some of these design patterns and how they can be applied to our modules.
 
 ---
 
@@ -215,8 +215,8 @@ Note: So lets look at some of these design patterns and how they can be applied 
 * Increases testability
 
 Note: Dependency injection is a software design pattern in which one or more dependencies (or services) are injected, for example passed by reference, into a dependent object (or client) and are made part of the client's state.
-Note: separates the creation of a client's dependencies from its own behavior, which allows for loose coupling and helps to keep the class having only a single reponsibility.
-Note: This improves flexibility and testability because we can use swap the dependency. For example in unit testing we can use mock objects in the dependencies.
+It separates the creation of a client's dependencies from its own behavior, which allows for loose coupling and helps to keep the class having only a single reponsibility.
+This improves flexibility and testability because we can use swap the dependency. For example in unit testing we can use mock objects in the dependencies.
 
 ---
 
@@ -240,7 +240,7 @@ class ClientExample {
 ```
 
 Note: So a classic example is requiring a database connection. We inject the dependency here by having the constructor have the dependency as an argument.
-Note: This allows us when testing to replace the connection with one to test database or better yet, a mock connection that doesn't implement a connection to database, but returns the data needed for the test. Doing this allows us to test the calculation logic in isolation and not test the dependent components such as the database. This gives us greater confidence that this class is correct. 
+This allows us when testing to replace the connection with one to test database or better yet, a mock connection that doesn't implement a connection to database, but returns the data needed for the test. Doing this allows us to test the calculation logic in isolation and not test the dependent components such as the database. This gives us greater confidence that this class is correct. 
 
 ---
 
@@ -275,7 +275,8 @@ class BlockContentForm extends ContentEntityForm {
 ```
 
 Note: Here we have an example of factory pattern in conjunction with dependency injection.
-Note: So in Drupal 8 we have a container that is responsible for the assembly of objects
+So in Drupal 8 we have a container that is responsible for the assembly of objects
+
 
 ---
 
@@ -283,7 +284,7 @@ Note: So in Drupal 8 we have a container that is responsible for the assembly of
 
 * The essence of the Mediator Pattern is to "Define an object that encapsulates how a set of objects interact"
 * Mediator promotes loose coupling by keeping objects from referring to each other explicitly, and it lets you vary their interaction independently.
-* Drupal 8 event system follows this pattern
+* Drupal 8 event system follows this patternß http://goo.gl/3uPKMx
 
 Note: 
 
@@ -339,8 +340,9 @@ $config->set('vocabulary', 'hooha')->save();
 ## Routing Pages
 
 Two easy steps:
-* Create a PHP class that extends ControllerBase
-* Create route definition in module_name.routing.yml
+
+1. Create a PHP class that extends ControllerBase
+2. Create route definition in module_name.routing.yml
 
 ---
 
@@ -375,7 +377,7 @@ page_example.example:
 ```
 
 Note: Giving routes an id means we can hot-swap paths
-Note: Allows for different resposne formats (eg. json, xml)
+Allows for different resposne formats (eg. json, xml)
 
 ---
 
