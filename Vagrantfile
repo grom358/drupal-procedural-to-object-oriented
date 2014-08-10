@@ -13,10 +13,10 @@ ram      = '768'
 nodes = [
   {
     :hostname => 'd7demo',
-    :ip => '192.168.1.52',
+    :ip => '10.0.1.52',
   },{
     :hostname => 'd8demo',
-    :ip => '192.168.1.53',
+    :ip => '10.0.1.53',
   }
 ]
 
@@ -35,7 +35,7 @@ Vagrant.configure("2") do |config|
       # We want to cater for both Unix and Windows.
       if RUBY_PLATFORM =~ /linux|darwin/
         node_config.vm.synced_folder(
-          ".",
+          "./" + node[:hostname],
           "/vagrant",
           :nfs => true,
           :map_uid => 0,
