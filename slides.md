@@ -48,8 +48,6 @@ There is less drupalisms, or as I like to put it. We moving off the drupal islan
 
 ![Don't be afraid](./images/cthulhu.jpg "Don't be afraid")
 
----
-
 > If you learnt php from Drupal - Drupal 8 will teach you modern php from a familiar setting. (Lee Rowlands, 2014)
 
 Note: For those that are not as familiar with object-oriented programming and grew up in drupal this change may seem daunting.
@@ -197,6 +195,8 @@ Note: This is similiar to the block code in Drupal 8. And so less changes will b
 * A general reusable solution to a commonly occurring problem within a given context in software design.
 * It is a description or template for how to solve a problem that can be used in many different situations.
 
+![Pattern](./images/pattern.jpg "Pattern")
+
 Note: Now we have looked at basic example of changing a module from procedural to object-oriented lets look at some useful techniques that we can apply with object-oriented modules.
 So what are design patterns?
 A design pattern is a general reusable solution to a commonly occurring problem within a given context in software design.
@@ -250,6 +250,8 @@ This allows us when testing to replace the connection with one to test database 
 * Provides an abstraction for the creation of an object.
 * Decouples the code from specific classes.
 
+![Factory](./images/factory.jpg "Factory")
+
 ---
 
 ## Factory Pattern
@@ -257,20 +259,24 @@ This allows us when testing to replace the connection with one to test database 
 ```
 <?php
 class BlockContentForm extends ContentEntityForm {
-  public function __construct(EntityManagerInterface $entity_manager, EntityStorageInterface $block_content_storage, LanguageManager $language_manager) {
-      parent::__construct($entity_manager);
-      $this->blockContentStorage = $block_content_storage;
-      $this->languageManager = $language_manager;
-    }
+  public function __construct(
+    EntityManagerInterface $entity_manager,
+    EntityStorageInterface $block_content_storage,
+    LanguageManager $language_manage
+  ) {
+    parent::__construct($entity_manager);
+    $this->blockContentStorage = $block_content_storage;
+    $this->languageManager = $language_manager;
+  }
 
-    public static function create(ContainerInterface $container) {
-      $entity_manager = $container->get('entity.manager');
-      return new static(
-        $entity_manager,
-        $entity_manager->getStorage('block_content'),
-        $container->get('language_manager')
-      );
-    }
+  public static function create(ContainerInterface $container) {
+    $entity_manager = $container->get('entity.manager');
+    return new static(
+      $entity_manager,
+      $entity_manager->getStorage('block_content'),
+      $container->get('language_manager')
+    );
+  }
 }
 ```
 
@@ -284,7 +290,7 @@ So in Drupal 8 we have a container that is responsible for the assembly of objec
 
 * The essence of the Mediator Pattern is to "Define an object that encapsulates how a set of objects interact"
 * Mediator promotes loose coupling by keeping objects from referring to each other explicitly, and it lets you vary their interaction independently.
-* Drupal 8 event system follows this patternß http://goo.gl/3uPKMx
+* Drupal 8 event system follows this pattern http://goo.gl/3uPKMx
 
 Note: 
 
