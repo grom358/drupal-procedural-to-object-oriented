@@ -38,9 +38,12 @@ Also touch on some important changes to drupal 8 that will affect porting of mod
 * Less arrays and less drupalisms
 * Lots of API clean up for greater consistency
 
+![Island](./images/island.jpg "Getting off the island")
+
 Note: As I just eluded to and as you may be aware, Drupal 8 is making major architectural changes.
 Shifting from procedural to object-oriented programming and taking advantage of the features in PHP 5.4 and excellent external libraries.
 There is less drupalisms, or as I like to put it. We moving off the drupal island and heading to the PHP mainland. We are becoming a part of the larger PHP community and taking advantage of the excellent work that is done there instead of reinventing the wheel.
+This also means we are contributing back to this projects and improving the PHP landscape for everyone.
 
 ---
 
@@ -159,13 +162,6 @@ Secondly everything relating to an individual block is define in the one class w
 * http://www.previousnext.com.au/blog/drupal-8-now-writing-drupal-7-code-eye-towards-drupal-8
 * https://www.drupal.org/project/ghost
 
-Note: The object-oriented example I just gave was of drupal 8. So the question is can we use object-oriented modules in drupal 7 that will be sympathetic to Drupal 8. That is porting the module to drupal 8 will be more straightforward and be of an object-oriented design.
-The short answer is yes. Chris Skene from PreviousNext has recently published a module called Ghost that lets you use object-oriented pages, forms and blocks in Drupal 7.
-
----
-
-## Bridging the gap
-
 ```
 <?php
 class BlockPluginExample extends BlockPluginBase {
@@ -186,7 +182,9 @@ class BlockPluginExample extends BlockPluginBase {
 
 ```
 
-Note: This is similiar to the block code in Drupal 8. And so less changes will be required to transition the code to work on Drupal 8.
+Note: The object-oriented example I just gave was of drupal 8. So the question is can we use object-oriented modules in drupal 7 that will be sympathetic to Drupal 8. That is porting the module to drupal 8 will be more straightforward and be of an object-oriented design.
+The short answer is yes. Chris Skene from PreviousNext has recently published a module called Ghost that lets you use object-oriented pages, forms and blocks in Drupal 7.
+This is similiar to the block code in Drupal 8. And so less changes will be required to transition the code to work on Drupal 8.
 
 ---
 
@@ -247,14 +245,15 @@ This allows us when testing to replace the connection with one to test database 
 ## Factory Pattern 
 
 * A factory is an object or method for creating objects.
-* Provides an abstraction for the creation of an object.
 * Decouples the code from specific classes.
 
 ![Factory](./images/factory.jpg "Factory")
 
+Note: In php, a factory is the abstraction for the creation of an object. A constructor results in an object of concrete class, so by having our dependent class using the new keyword to create the class its coupled with that specific class and is also adding responsibility to the class that is outside its behaviour. By using the factory pattern we can decouple from using concrete classes. Let's take a look at using a factory method in drupal 8.
+
 ---
 
-## Factory Pattern
+## Factory Method Pattern
 
 ```
 <?php
@@ -280,8 +279,8 @@ class BlockContentForm extends ContentEntityForm {
 }
 ```
 
-Note: Here we have an example of factory pattern in conjunction with dependency injection.
-So in Drupal 8 we have a container that is responsible for the assembly of objects
+Note: Here we using factory method in conjunction with dependency injection. This is used throughout Drupal 8. Notice the factory method takes a ContainerInterface. The container is responsible for the assembly of objects and is controlled via YAML files.
+<Show core.services.yml in phpstorm>
 
 
 ---
@@ -289,10 +288,15 @@ So in Drupal 8 we have a container that is responsible for the assembly of objec
 ## Mediator pattern
 
 * The essence of the Mediator Pattern is to "Define an object that encapsulates how a set of objects interact"
-* Mediator promotes loose coupling by keeping objects from referring to each other explicitly, and it lets you vary their interaction independently.
+* Mediator promotes loose coupling by keeping objects from referring to each other explicitly.
 * Drupal 8 event system follows this pattern http://goo.gl/3uPKMx
 
-Note: 
+![Event System](./images/events.png "Event System")
+
+Note: The essence of the Mediator Pattern is to "Define an object that encapsulates how a set of objects interact"
+With this pattern, communication between objects is encapsulated with a mediator object. Objects no longer communicate directly with each other, but instead communicate through the mediator. This reduces the dependencies between communicating objects, thereby lowering the coupling.
+In Drupal 8 the event system uses the mediator pattern to decouple classes that generate events from classes that interact on these events.
+We register interest inn events by implementing the EventSubscriberInterface which has the getSubscribedEvents method that returns the events interested in and the callback to call for these events. Then classes such as BlockBase dispatch events to the EventDispatcher which then takes care of notifying listeners such as CurrentUserContext and NodeRouteContext of these events.
 
 ---
 
@@ -306,6 +310,14 @@ Note:
   * Simplifies integration
   * Documentation
   * Better Design
+  
+Note: The general theme of these design patterns is they reduce coupling of dependencies. This really helps with testibility and therefore improves quality as we can test and verify each part in isolation.
+By writing unit tests we gain a strict written contract that the part must satisfy. We have a repeatable and provable set of functionality which provide a number of benefits.
+Unit tests should be ran frequently and since they testing individual part they detect errors at early stage.
+And with a repeatable automated test suite it opens up the possibility to refactor code and check that the module still works correctly.
+It simplifies integration as we reduce uncertainty with the invidiual parts and so integration testing becomes much easier since there is less surface area.
+Unit tests act as a sort of living documentation. Its in sync with the functionality of the code and it describes in detail the functionality that is provided.
+The process of creating unit tests also helps improve our design. When something is difficult to test it means our design needs improving. So the unit tests drives use to use better designs so the code is testable.
 
 ---
 
@@ -313,24 +325,35 @@ Note:
 
 ```
 <?php
-class ExampleTest extends PHPUnit_Framework_TestCase {
-  public function testSomeMethod() {
-    $stub = $this->getMock('SomeDependency');
-    $stub->method('getName')
-      ->willReturn('foo');
+class AlaramTest extends PHPUnit_Framework_TestCase {
+  public function testRadioWakeup() {
+    $stub = $this->getMock('Clock');
+    $stub->method('getTime')
+      ->willReturn(Time::fromString('6:00 AM'));
 
-    $example = new Example($stub);
+    $alarmClock = new AlarmClock($stub);
 
-    $this->assertEquals('hello foo', $example->sayHello());
+    $this->assertTrue($alarmClock->isWakeup());
+    $this->assertTrue($alarmClock->isRadioPlaying());
   }
 }
 ```
+
+Note: Objects may have a number of dependencies so how can we test it in isolation. The answer is we can use a mock object that simulates the behavior of real objects in a controlled way. This is in much the same way that car designers use a crash test dummy to simulate vehicle impacts.
+This is useful when the dependency has any number of characteristics such as:
+* Its results are non-deterministic (eg. the current temperature)
+* It has states that are difficult to create or reproduce (eg. a network error)
+* It is slow (eg. a database)
+* It does not exist yet
+
+For example, an alarm clock which causes the radio to start playing at certain time. To test this, we create a mock object that provides the alarm time whether it is actually that time or not.
 
 ---
 
 ## Important Changes in Drupal 8
 
 * http://www.previousnext.com.au/blog/drupal-south-presentation-everything-you-wanted-know-about-drupal-8-were-too-afraid-ask
+* Utility class methods in preference to functions. Eg. String::checkPlain instead of check_plain
 * hook_menu is gone, replaced by routes
 * variable_set / variable_get is replaced with a configuration system
 
@@ -341,14 +364,20 @@ $vocabulary = $config->get('vocabulary');
 $config->set('vocabulary', 'hooha')->save();
 ```
 
+Note: There are lot of changes with Drupal 8 and unfortunately we don't have time to cover them in this session. If you want to know more about the changes I highly recommend the talk 'Everything you wanted to know about Drupal 8 but were too afraid to ask' by Lee Rowlands and Kim Pepper.
+However I will cover a couple of the changes here. Firstly there is a preference to use utility class methods instead of utility functions. For example checkPlain static method on String class instead of the global check_plain. Basically there is less population of the global namespace in Drupal 8. Its still a work in progress however.
+A bigger change that will affect your modules is hook_menu is gone and been replaced by routes. And variable_set and get have been replaced with a proper configuration system.
+
 ---
 
 ## Routing Pages
 
 Two easy steps:
 
-1. Create a PHP class that extends ControllerBase
+1. Create a page controller by extending ControllerBase
 2. Create route definition in module_name.routing.yml
+
+Note: So with routes we define our pages in two easy steps. We create our page controlelr by extending ControllerBase, then we create our route definition in a YAML file.
 
 ---
 
@@ -363,11 +392,14 @@ use Drupal\Core\Controller\ControllerBase;
 class PageExampleController extends ControllerBase {
   public function pageExample() {
     return array(
-      '#markup' => t('This is some content'),
+      '#markup' => $this->t('This is some content'),
     );
   }
 }
 ```
+
+Note: Similiar to the block example from earlier we have object-oriented pages. The methods on this controller class replace the page callbacks that we defined in Drupal 7.
+Note: Just quick now here. Functions such as t function are now methods on the ControllerBase. So we have $this->t instead of calling a global t function.
 
 ---
 
@@ -382,8 +414,8 @@ page_example.example:
     _permission: 'access examples'
 ```
 
-Note: Giving routes an id means we can hot-swap paths
-Allows for different resposne formats (eg. json, xml)
+Note: Now we have a YAML configuration file that defines the mapping of a path back to our controller method. By using an id for the route the code is not dependent on the path, this lets us hot-swap paths. How awesome is that!
+There is more routes can do compared to hook_menu but I just wanted to show a quick example of how you can define a page. Check out Lee and Kim's talk if you want to find out more.
 
 ---
 
@@ -394,6 +426,8 @@ Allows for different resposne formats (eg. json, xml)
 * Detect old D7 code and flag errors which point people off to the relevant change notice(s).
 * The goal is to hit the most widely-used hooks and ensure there's detection logic for them.
 
+Note: To help migrate modules from Drupal 7 to 8, Acquia have created Drupal Module Upgrader. It will help detect old drupal 7 code and flag errors that point to the relevant change notice. The goal is to detect the most widely-used hooks and give you information about them.
+
 ---
 
 ## Pharborist
@@ -403,6 +437,11 @@ Allows for different resposne formats (eg. json, xml)
 * Example usages:
   * Conversion of procedural function calls to utility function https://github.com/grom358/d8codetools
   * Array syntax upgrade http://www.previousnext.com.au/blog/upgrade-array-syntax-automatic-way
+
+Note: Another tool that you may find useful is one I have developed called Pharborist. Its a library that provides a jQuery inspired interface for working with PHP source trees. Its still in its infancy but I would like to see tools like Drupal Module Upgrader and php-cs fixer using it in the future.
+So far its been used to create a number of patches to convert procedural function calls to the class utility method. Eg. check_plain patch was created by the tool I have on github there.
+I have also blogged showing an example of using it to upgrade from old array syntax to the new style.
+
 
 ---
 
@@ -423,6 +462,9 @@ foreach ($tree->find(Filter::isInstanceOf('\Pharborist\ArrayNode')) as $array) {
   }
 }
 ```
+
+Note: Here is snippet of the code from that blog to show you Pharborist in action. The PHP source is constructed into a tree which can then navigate via jQuery like methods. So we find arrays in the tree and foreach one we test if its in the old syntax and if so we convert it into the new syntax.
+Its still rather early days for this library so shamelessly plugging it here, hoping to gain some more interest and feedback on it.
 
 ---
 
