@@ -74,10 +74,10 @@ Note: Before we go into that, you may be wondering what the big deal is, and why
 In my opinion it is making Drupal better designed and easier to develop for. For example, instead of these arrays (like form arrays and render arrays) where you have to memorize what the keys are or look up the documentation. We now have interfaces. There still some these arrays in Drupal 8, but we heading in direction of removing them.
 An interface defines a contract for how we interact with a component and its more visible and better supported by an IDE.
 <ACTION> Show demo in PHPStorm of arrays vs object
-Additionally interfaces gives us pluggable components. We are abstracted from a concrete implementation and we are free to provide alternative implementations. For example, menu storage is currently using a tree structured, we could swap that out to using an implementation based on nested set theory.
+Additionally interfaces gives us pluggable components. We are abstracted from a concrete implementation and we are free to provide alternative implementations. For example, menu storage is currently using a tree structure, we could swap that out to using an implementation based on nested set theory if we wanted.
 This swappability also helps with testing, as we can use a test double or what is referred to as a mock object in place of the real object. But more on testing later.
-With this change to object-oriented programming we are also seeing a better separation of concerns. Drupal 8 is no longer assumign the output is HTML and is better supporting web services and other output formats.
-The change to OO programming is also taking advantage of established design patterns. Learning one part of drupal applies to many areas of drupal 8 and even to other PHP projects. So now its quicker for non drupal developers to get started on drupal and likewise for drupal developers to contribute to other projects. That is more familiarity between PHP projects.
+With this change to object-oriented programming we are also seeing a better separation of concerns. Drupal 8 is no longer assuming the output is HTML and is better supporting web services and other output formats.
+The change to OO programming is also taking advantage of established design patterns. Learning one part of drupal applies to many areas of drupal 8 and even to other PHP projects. So now its quicker for non drupal developers to get started on drupal and likewise for drupal developers to contribute to other projects. That is there is more familiarity between PHP projects.
 
 ---
 
@@ -113,7 +113,7 @@ function example_block_view($delta = '') {
 ```
 
 Note: Okay so lets start by looking at an example of a drupal 7 module that is defining some blocks.
-First thing to note is this Drupalism of hooks. We hooks we have to be careful in the naming of our functions so they match the required hook and the arguments align with how drupal will call our hook.
+First thing to note is this Drupalism of hooks. With hooks we have to be careful in the naming of our functions so they match the required hook and that the arguments align with how drupal will call our hook.
 If we make a mistake with the function signature there is no immediate feedback.
 Second thing to notice is we have these switch statements over delta where the case statements have to match the id returned in the info function.
 So here I have only defined the view hook, but if I was to add in say configuration form hooks we would have similiar looking switch statements.
@@ -142,6 +142,7 @@ abstract class BlockBase extends ContextAwarePluginBase
 /**
  * @Block(
  *   id = "example_block",
+ *   subject = @Translation("Example block"),
  *   admin_label = @Translation("Example Block")
  * )
  */
@@ -199,6 +200,23 @@ If you check out the Drupal 8 Now Series, there is more information on briding t
 
 ---
 
+## SOLID
+
+* Single responsibility principle - a class should have only a single responsibility.
+* Open/closed principle - Software entities should be open for extension, but closed for modification.
+* Liskov substitution principle - Objects in a program should be replaceable with instances of their subtypes without altering the correctness of that program.
+* Interface segregation principle - Many client-specific interfaces are better than one general-purpose interface.
+* Dependency Inversion principle - One should "Depend upon Abstractions. Do not depend upon concretions."
+
+Note: So the block example we just looked at is a basic example of using OO. Our aim is to create a system that is easy to maintain and extend over time. In order to help with that we can use the SOLID principles as guidelines when creating OO modules.
+The single responsibility principle states that every context (eg. a class) should have a single responsibility, and that responsibility should be entirely encapsulated by the context.
+The open/closed principle states that "software entities (eg. a class) should be open for extension, but closed for modification." That is it should allow its behaviour to be modified without altering its source code, such as using subclasses or alternative implementations of an interface.
+Liskov substituation principle states that objects should be replaceable with instances that are subtypes without altering the correctness of the program.
+Interface segregation principle states that no client should be forced to depend on methods it does not use. So the principle is to prefer smaller and more specific interfaces to larger ones.
+The Dependency Inversion principle states that we should depend on abstractions (ie. interfaces) and not specific implementations.
+
+
+---
 ## Design Patterns
 
 * A general reusable solution to a commonly occurring problem within a given context in software design.
@@ -206,12 +224,11 @@ If you check out the Drupal 8 Now Series, there is more information on briding t
 
 ![Pattern](./images/pattern.jpg "Pattern")
 
-Note: Now we have looked at basic example of changing a module from procedural to object-oriented lets look at some useful techniques that we can apply with object-oriented modules that will improve the design and quality of our module.
-So what are design patterns?
+Note: In addition to the SOLID principles there are design patterns which we can also apply with OO. So what are design patterns?
 A design pattern is a general reusable solution to a commonly occurring problem within a given context in software design.
 The solution isn't a concrete implementation but a description or template on how to solve a problem that can be used in different situations.
 These design patterns are not specific to Drupal and are common to many object-oriented langauges besides php.
-So with Drupal 8 this means less drupalisms. With the idea being once you learn something in Drupal 8 you can apply it in multiple situations and projects.
+So with Drupal 8 we use a number of these common design patterns and therefore there are less drupalisms. With the idea being once you learn something in Drupal 8 you can apply it in multiple situations and projects.
 So lets look at some of these design patterns and how they can be applied to our modules.
 
 ---
@@ -223,9 +240,9 @@ So lets look at some of these design patterns and how they can be applied to our
 * Increases flexibility
 * Increases testability
 
-Note: Dependency injection is a software design pattern in which one or more dependencies are injected into a client object and are made part of the client's state.
-This separates the creation of a client's dependencies from its own behavior, which allows for loose coupling and helps to keep the class having only a single reponsibility.
-This improves flexibility and testability because we can use swap the dependency. For example we use this in unit testing to use mock objects for these dependencies.
+Note: Dependency injection is a software design pattern in which one or more dependencies are injected into a client object and are made part of the client's state. Its one method of following the Dependency Inversion principle.
+It separates the creation of a client's dependencies from its own behavior, which allows for loose coupling and helps to keep the class having a single reponsibility.
+This improves flexibility and testability because we can use swap the dependency. For example we use this in unit testing to use mock objects for the dependencies.
 
 ---
 
@@ -236,7 +253,7 @@ This improves flexibility and testability because we can use swap the dependency
 class ClientExample {
   protected $database;
 
-  public function __construct(Connection $database) {
+  public function __construct(ConnectionInterface $database) {
     $this->database = $database;
   }
 
@@ -248,7 +265,7 @@ class ClientExample {
 }
 ```
 
-Note: So a classic example is requiring a database connection. In the code here we inject the dependency by having the constructor have the dependency as an argument.
+Note: So a classic example is we require a database connection. In the code here we inject the dependency by having the constructor have the dependency as an argument.
 This allows us when testing to replace the normal connection with one to test database or better yet, a mock connection that doesn't implement a connection to database at all, but returns the data needed for the test. In this case doing this allows us to test the calculation logic in isolation and not test the dependent component of the database. This gives us greater confidence that the calculation logic is correct as we are not dependent on state from the database.
 
 ---
@@ -260,11 +277,38 @@ This allows us when testing to replace the normal connection with one to test da
 
 ![Factory](./images/factory.jpg "Factory")
 
-Note: Next we have the factory pattern. In class based languages such as php, a factory is the abstraction for the creation of an object. Using a constructor results in an object of concrete class, so by having our dependent class using the new keyword to create the class it becomes coupled with that specific class and also has responsibility to creation of that object which is outside its own behaviour. By using the factory pattern we can decouple from using concrete classes as now its the factory's responsibility. An example of this pattern is factory methods in Drupal 8.
+Note: Next we have the factory pattern. In class based languages such as php, a factory is the abstraction for the creation of an object. Using a constructor results in an object of concrete class, so by having our dependent class using the new keyword to create the class it becomes coupled with that specific class and also has responsibility to creation of that object which is outside its own behaviour. By using the factory pattern we can decouple from using concrete classes as now its the factory's responsibility.
 
 ---
 
-## Factory Method
+## Factory Pattern
+
+```
+<?php
+// Without factory pattern
+class ClientExample {
+  public function __construct() {
+    // Client is reponsible for creation of the dependency
+    // which is outside defining its own responsibility.
+    $arg = 'some value';
+    $anotherArg = new DependencyOfOurDependency();
+    $this->dependency = new SomeDependency($arg, $anotherArg);
+  }
+}
+
+// With factory pattern
+class ClientExample {
+  public function __construct() {
+    $this->dependency = SomeDependency::create();
+  }
+}
+```
+
+Note: So in this example we compare the code before and after we applied the factory pattern. Without the factory the responsibility for the creation of the dependency is part of our class which muddles our class with responsibility besides its own behaviour. With the factory pattern we have moved the responsibility to the class that is better able to handle it and maintain the single responsibility principle and dependency inversion principle.
+
+---
+
+## Factory in Drupal
 
 ```
 <?php
@@ -290,7 +334,7 @@ class BlockContentForm extends ContentEntityForm {
 }
 ```
 
-Note: In this example here we using factory method in conjunction with dependency injection. This is used throughout Drupal 8. Notice the factory method takes a ContainerInterface. The container is responsible for the assembly of objects and is controlled via YAML files.
+Note: In this Drupal 8 code here we using a factory method in conjunction with dependency injection. Notice the factory method takes a ContainerInterface. The container is responsible for the assembly of objects and is controlled via YAML configuration files.
 <Show core.services.yml in Drupal 8>
 Notice here we define entity.manager and its saying to construct an EntityManager with dependencies that also defined in YAML.
 
