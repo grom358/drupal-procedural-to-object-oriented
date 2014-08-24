@@ -1,0 +1,53 @@
+/* Background */
+body {
+  background-image: -webkit-gradient(
+  	linear,
+  	left top,
+  	left bottom,
+  	color-stop(0.48, #EBECF0),
+  	color-stop(0.67, #FFFFFF)
+  );
+  background-image: -o-linear-gradient(bottom, #EBECF0 48%, #FFFFFF 67%);
+  background-image: -moz-linear-gradient(bottom, #EBECF0 48%, #FFFFFF 67%);
+  background-image: -webkit-linear-gradient(bottom, #EBECF0 48%, #FFFFFF 67%);
+  background-image: -ms-linear-gradient(bottom, #EBECF0 48%, #FFFFFF 67%);
+  background-image: linear-gradient(to bottom, #EBECF0 48%, #FFFFFF 67%);
+}
+
+body .reveal {
+  background-image: url("logo.png");
+  background-position: right bottom;
+  background-position-x: 2%;
+  background-position-y: 96%;
+  background-repeat: no-repeat;
+}
+
+/* Text */
+.reveal h1,
+.reveal h2,
+.reveal h3 {
+  color: #085896
+}
+
+.reveal p,
+ul li,
+ol li {
+  color: black;
+}
+
+.reveal section img {
+  border: 4px solid #FFFFFF;
+}
+
+.reveal a:not(.image) {
+  color: #085896;
+  text-decoration: underline;
+}
+
+.reveal pre {
+  width: 100%;
+}
+
+.reveal pre code {
+  max-height: 600px;  
+}
